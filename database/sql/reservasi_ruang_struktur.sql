@@ -1,0 +1,32 @@
+CREATE DATABASE IF NOT EXISTS reservasi_ruang_2401020167
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+USE reservasi_ruang_2401020167;
+
+CREATE TABLE IF NOT EXISTS ruang (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nama_ruang VARCHAR(100) NOT NULL UNIQUE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS reservasi_ruang (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    kode_reservasi CHAR(10) NOT NULL UNIQUE,
+    nama_peminjam VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    durasi_jam TINYINT UNSIGNED NOT NULL,
+    ruang_id BIGINT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_reservasi_ruang
+        FOREIGN KEY (ruang_id)
+        REFERENCES ruang(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    CONSTRAINT chk_durasi_jam
+        CHECK (durasi_jam BETWEEN 1 AND 8)
+) ENGINE=InnoDB;
+

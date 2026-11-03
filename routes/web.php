@@ -4,8 +4,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB; 
 use Illuminate\Support\Facades\Validator;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -91,10 +91,8 @@ Route::post('/form-mahasiswa', function (Request $request) {
     $data['usia'] = (int) $data['usia'];
 
     return view('hasil-form', ['data' => $data]);
-    
+
 });
-
-
 
 Route::get('/mahasiswa', function (Request $request) {
     $kataKunci = trim((string) $request->query('q', ''));
@@ -129,7 +127,7 @@ Route::get('/mahasiswa', function (Request $request) {
         $sql .= ' ORDER BY m.nim';
         $ambilMahasiswa = $pdo->prepare($sql);
         $ambilMahasiswa->execute($parameter);
-        $daftarMahasiswa = $ambilMahasiswa->fetchAll(\PDO::FETCH_ASSOC);
+        $daftarMahasiswa = $ambilMahasiswa->fetchAll(PDO::FETCH_ASSOC);
 
         $ambilProdi = $pdo->prepare(
             'SELECT id, nama_prodi
@@ -137,7 +135,7 @@ Route::get('/mahasiswa', function (Request $request) {
              ORDER BY nama_prodi'
         );
         $ambilProdi->execute();
-        $daftarProgramStudi = $ambilProdi->fetchAll(\PDO::FETCH_ASSOC);
+        $daftarProgramStudi = $ambilProdi->fetchAll(PDO::FETCH_ASSOC);
 
         return view('mahasiswa', compact(
             'daftarMahasiswa',
@@ -145,7 +143,7 @@ Route::get('/mahasiswa', function (Request $request) {
             'kataKunci',
             'programStudiId'
         ));
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return response(
@@ -154,7 +152,6 @@ Route::get('/mahasiswa', function (Request $request) {
         );
     }
 })->name('mahasiswa.index');
-
 
 Route::post('/mahasiswa', function (Request $request) {
     $data = $request->validate([
@@ -165,7 +162,7 @@ Route::post('/mahasiswa', function (Request $request) {
         'program_studi_id' => [
             'required',
             'integer',
-            'exists:program_studi,id'
+            'exists:program_studi,id',
         ],
     ], [
         'nim.required' => 'NIM wajib diisi.',
@@ -217,7 +214,7 @@ Route::post('/mahasiswa', function (Request $request) {
         return redirect()
             ->route('mahasiswa.index')
             ->with('berhasil', 'Data mahasiswa berhasil ditambahkan.');
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return back()
@@ -234,7 +231,7 @@ Route::get('/mahasiswa/{id}/edit', function (int $id) {
              FROM mahasiswa WHERE id = :id'
         );
         $ambilMahasiswa->execute(['id' => $id]);
-        $mahasiswa = $ambilMahasiswa->fetch(\PDO::FETCH_ASSOC);
+        $mahasiswa = $ambilMahasiswa->fetch(PDO::FETCH_ASSOC);
 
         if (! $mahasiswa) {
             return redirect()->route('mahasiswa.index')->with(
@@ -247,13 +244,13 @@ Route::get('/mahasiswa/{id}/edit', function (int $id) {
             'SELECT id, nama_prodi FROM program_studi ORDER BY nama_prodi'
         );
         $ambilProdi->execute();
-        $daftarProgramStudi = $ambilProdi->fetchAll(\PDO::FETCH_ASSOC);
+        $daftarProgramStudi = $ambilProdi->fetchAll(PDO::FETCH_ASSOC);
 
         return view('mahasiswa-edit', compact(
             'mahasiswa',
             'daftarProgramStudi'
         ));
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return redirect()->route('mahasiswa.index')->with(
@@ -314,7 +311,7 @@ Route::put('/mahasiswa/{id}', function (
             'berhasil',
             'Data mahasiswa berhasil diperbarui.'
         );
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return back()->withInput()->with(
@@ -343,7 +340,7 @@ Route::delete('/mahasiswa/{id}', function (int $id) {
             'berhasil',
             'Data mahasiswa berhasil dihapus.'
         );
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return redirect()->route('mahasiswa.index')->with(
@@ -360,7 +357,6 @@ Route::delete('/mahasiswa/{id}', function (int $id) {
  * Mahasiswa: Shalsabyla Finta Azalea (NIM: 2401020167)
  * ============================================================================
  */
-
 if (! function_exists('statusUsiaAset')) {
     /**
      * Menentukan status usia aset berdasarkan tahun perolehan.
@@ -406,14 +402,14 @@ Route::get('/inventaris', function (Request $request) {
         $sql .= ' ORDER BY i.kode_barang ASC';
         $ambilInventaris = $pdo->prepare($sql);
         $ambilInventaris->execute($parameter);
-        $daftarInventaris = $ambilInventaris->fetchAll(\PDO::FETCH_ASSOC);
+        $daftarInventaris = $ambilInventaris->fetchAll(PDO::FETCH_ASSOC);
 
         $ambilRuang = $pdo->prepare('SELECT id, nama_ruang FROM ruang ORDER BY nama_ruang ASC');
         $ambilRuang->execute();
-        $daftarRuang = $ambilRuang->fetchAll(\PDO::FETCH_ASSOC);
+        $daftarRuang = $ambilRuang->fetchAll(PDO::FETCH_ASSOC);
 
         return view('inventaris', compact('daftarInventaris', 'daftarRuang', 'kataKunci', 'ruangId'));
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return response('Data inventaris tidak dapat dibaca. Periksa koneksi dan query.', 500);
@@ -484,7 +480,7 @@ Route::post('/inventaris', function (Request $request) {
         return redirect()
             ->route('inventaris.index')
             ->with('berhasil', 'Data inventaris berhasil ditambahkan.');
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return back()
@@ -501,7 +497,7 @@ Route::get('/inventaris/{id}/edit', function (int $id) {
              FROM inventaris WHERE id = :id'
         );
         $ambilInventaris->execute(['id' => $id]);
-        $inventaris = $ambilInventaris->fetch(\PDO::FETCH_ASSOC);
+        $inventaris = $ambilInventaris->fetch(PDO::FETCH_ASSOC);
 
         if (! $inventaris) {
             return redirect()->route('inventaris.index')->with(
@@ -512,10 +508,10 @@ Route::get('/inventaris/{id}/edit', function (int $id) {
 
         $ambilRuang = $pdo->prepare('SELECT id, nama_ruang FROM ruang ORDER BY nama_ruang ASC');
         $ambilRuang->execute();
-        $daftarRuang = $ambilRuang->fetchAll(\PDO::FETCH_ASSOC);
+        $daftarRuang = $ambilRuang->fetchAll(PDO::FETCH_ASSOC);
 
         return view('inventaris-edit', compact('inventaris', 'daftarRuang'));
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return redirect()->route('inventaris.index')->with(
@@ -600,7 +596,7 @@ Route::put('/inventaris/{id}', function (Request $request, int $id) {
             'berhasil',
             'Data inventaris berhasil diperbarui.'
         );
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return back()->withInput()->with(
@@ -627,7 +623,7 @@ Route::delete('/inventaris/{id}', function (int $id) {
             'berhasil',
             'Data inventaris berhasil dihapus.'
         );
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         report($error);
 
         return redirect()->route('inventaris.index')->with(
@@ -636,5 +632,300 @@ Route::delete('/inventaris/{id}', function (int $id) {
         );
     }
 })->name('inventaris.destroy');
+
+/**
+ * ============================================================================
+ * STUDI KASUS PRAKTIKUM PEMROGRAMAN WEB (MODUL 1 - MODUL 7)
+ * PAKET 2 / TIPE A: SISTEM RESERVASI RUANG
+ * Mahasiswa: Shalsabyla Finta Azalea (NIM: 2401020167)
+ * ============================================================================
+ */
+if (! function_exists('statusDurasi')) {
+    /**
+     * Menentukan status durasi reservasi ruang.
+     * Mengembalikan 'Panjang' jika durasi >= 4 jam dan 'Singkat' jika di bawahnya.
+     */
+    function statusDurasi(int $durasi): string
+    {
+        return $durasi >= 4 ? 'Panjang' : 'Singkat';
+    }
+}
+
+Route::get('/reservasi', function (Request $request) {
+    $kataKunci = trim((string) $request->query('q', ''));
+    $ruangId = trim((string) $request->query('ruang_id', ''));
+
+    try {
+        $pdo = DB::connection()->getPdo();
+
+        $sql = 'SELECT rr.id, rr.kode_reservasi, rr.nama_peminjam, rr.email,
+                       rr.durasi_jam, rr.ruang_id, r.nama_ruang
+                FROM reservasi_ruang AS rr
+                JOIN ruang AS r ON r.id = rr.ruang_id
+                WHERE 1 = 1';
+        $parameter = [];
+
+        // Pencarian memeriksa 3 kolom: kode_reservasi, nama_peminjam, dan email
+        if ($kataKunci !== '') {
+            $sql .= ' AND (rr.kode_reservasi LIKE :kata_kunci_kode
+                      OR rr.nama_peminjam LIKE :kata_kunci_nama
+                      OR rr.email LIKE :kata_kunci_email)';
+            $nilaiPencarian = '%'.$kataKunci.'%';
+            $parameter['kata_kunci_kode'] = $nilaiPencarian;
+            $parameter['kata_kunci_nama'] = $nilaiPencarian;
+            $parameter['kata_kunci_email'] = $nilaiPencarian;
+        }
+
+        // Filter berdasarkan tabel master ruang
+        if ($ruangId !== '') {
+            $sql .= ' AND rr.ruang_id = :ruang_id';
+            $parameter['ruang_id'] = (int) $ruangId;
+        }
+
+        $sql .= ' ORDER BY rr.kode_reservasi ASC';
+        $ambilReservasi = $pdo->prepare($sql);
+        $ambilReservasi->execute($parameter);
+        $daftarReservasi = $ambilReservasi->fetchAll(PDO::FETCH_ASSOC);
+
+        $ambilRuang = $pdo->prepare('SELECT id, nama_ruang FROM ruang ORDER BY nama_ruang ASC');
+        $ambilRuang->execute();
+        $daftarRuang = $ambilRuang->fetchAll(PDO::FETCH_ASSOC);
+
+        return view('reservasi', compact('daftarReservasi', 'daftarRuang', 'kataKunci', 'ruangId'));
+    } catch (Throwable $error) {
+        report($error);
+
+        return response('Data reservasi tidak dapat dibaca. Periksa koneksi dan query.', 500);
+    }
+})->name('reservasi.index');
+
+Route::post('/reservasi', function (Request $request) {
+    $request->merge([
+        'kode_reservasi' => strtoupper(strip_tags(trim((string) $request->input('kode_reservasi')))),
+        'nama_peminjam' => strip_tags(trim((string) $request->input('nama_peminjam'))),
+        'email' => filter_var(trim((string) $request->input('email')), FILTER_SANITIZE_EMAIL),
+        'durasi_jam' => trim((string) $request->input('durasi_jam')),
+        'ruang_id' => trim((string) $request->input('ruang_id')),
+    ]);
+
+    $data = $request->validate([
+        'kode_reservasi' => ['required', 'string', 'size:10', 'regex:/^[A-Za-z0-9]{10}$/'],
+        'nama_peminjam' => ['required', 'string', 'min:3', 'max:100'],
+        'email' => ['required', 'email', 'max:100'],
+        'durasi_jam' => ['required', 'integer', 'between:1,8'],
+        'ruang_id' => ['required', 'integer'],
+    ], [
+        'kode_reservasi.required' => 'Kode reservasi wajib diisi.',
+        'kode_reservasi.size' => 'Kode reservasi harus tepat 10 karakter.',
+        'kode_reservasi.regex' => 'Kode reservasi harus berupa 10 karakter alfanumerik.',
+        'nama_peminjam.required' => 'Nama peminjam wajib diisi.',
+        'nama_peminjam.min' => 'Nama peminjam minimal 3 karakter.',
+        'nama_peminjam.max' => 'Nama peminjam maksimal 100 karakter.',
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'email.max' => 'Email maksimal 100 karakter.',
+        'durasi_jam.required' => 'Durasi wajib diisi.',
+        'durasi_jam.integer' => 'Durasi harus berupa angka bulat.',
+        'durasi_jam.between' => 'Durasi harus di antara 1 sampai 8 jam.',
+        'ruang_id.required' => 'Ruang kampus wajib dipilih.',
+        'ruang_id.integer' => 'Ruang kampus yang dipilih tidak valid.',
+    ]);
+
+    try {
+        $pdo = DB::connection()->getPdo();
+
+        $cekRuang = $pdo->prepare('SELECT COUNT(*) FROM ruang WHERE id = :ruang_id');
+        $cekRuang->execute(['ruang_id' => $data['ruang_id']]);
+        if ((int) $cekRuang->fetchColumn() === 0) {
+            return back()->withInput()->with('gagal', 'Ruang kampus yang dipilih tidak tersedia.');
+        }
+
+        $cekDuplikat = $pdo->prepare(
+            'SELECT COUNT(*) FROM reservasi_ruang WHERE kode_reservasi = :kode_reservasi OR email = :email'
+        );
+        $cekDuplikat->execute([
+            'kode_reservasi' => $data['kode_reservasi'],
+            'email' => $data['email'],
+        ]);
+
+        if ((int) $cekDuplikat->fetchColumn() > 0) {
+            return back()
+                ->withInput()
+                ->with('gagal', 'Kode reservasi atau email sudah terdaftar.');
+        }
+
+        $simpan = $pdo->prepare(
+            'INSERT INTO reservasi_ruang (kode_reservasi, nama_peminjam, email, durasi_jam, ruang_id)
+             VALUES (:kode_reservasi, :nama_peminjam, :email, :durasi_jam, :ruang_id)'
+        );
+        $simpan->execute([
+            'kode_reservasi' => $data['kode_reservasi'],
+            'nama_peminjam' => $data['nama_peminjam'],
+            'email' => $data['email'],
+            'durasi_jam' => (int) $data['durasi_jam'],
+            'ruang_id' => (int) $data['ruang_id'],
+        ]);
+
+        return redirect()
+            ->route('reservasi.index')
+            ->with('berhasil', 'Data reservasi berhasil ditambahkan.');
+    } catch (Throwable $error) {
+        report($error);
+
+        return back()
+            ->withInput()
+            ->with('gagal', 'Data gagal disimpan. Periksa koneksi dan data.');
+    }
+})->name('reservasi.store');
+
+Route::get('/reservasi/{id}/edit', function (int $id) {
+    try {
+        $pdo = DB::connection()->getPdo();
+        $ambilReservasi = $pdo->prepare(
+            'SELECT id, kode_reservasi, nama_peminjam, email, durasi_jam, ruang_id
+             FROM reservasi_ruang WHERE id = :id'
+        );
+        $ambilReservasi->execute(['id' => $id]);
+        $reservasi = $ambilReservasi->fetch(PDO::FETCH_ASSOC);
+
+        if (! $reservasi) {
+            return redirect()->route('reservasi.index')->with(
+                'gagal',
+                'Data reservasi tidak ditemukan.'
+            );
+        }
+
+        $ambilRuang = $pdo->prepare('SELECT id, nama_ruang FROM ruang ORDER BY nama_ruang ASC');
+        $ambilRuang->execute();
+        $daftarRuang = $ambilRuang->fetchAll(PDO::FETCH_ASSOC);
+
+        return view('reservasi-edit', compact('reservasi', 'daftarRuang'));
+    } catch (Throwable $error) {
+        report($error);
+
+        return redirect()->route('reservasi.index')->with(
+            'gagal',
+            'Data gagal dibuka untuk diubah.'
+        );
+    }
+})->name('reservasi.edit');
+
+Route::put('/reservasi/{id}', function (Request $request, int $id) {
+    $request->merge([
+        'kode_reservasi' => strtoupper(strip_tags(trim((string) $request->input('kode_reservasi')))),
+        'nama_peminjam' => strip_tags(trim((string) $request->input('nama_peminjam'))),
+        'email' => filter_var(trim((string) $request->input('email')), FILTER_SANITIZE_EMAIL),
+        'durasi_jam' => trim((string) $request->input('durasi_jam')),
+        'ruang_id' => trim((string) $request->input('ruang_id')),
+    ]);
+
+    $data = $request->validate([
+        'kode_reservasi' => ['required', 'string', 'size:10', 'regex:/^[A-Za-z0-9]{10}$/'],
+        'nama_peminjam' => ['required', 'string', 'min:3', 'max:100'],
+        'email' => ['required', 'email', 'max:100'],
+        'durasi_jam' => ['required', 'integer', 'between:1,8'],
+        'ruang_id' => ['required', 'integer'],
+    ], [
+        'kode_reservasi.required' => 'Kode reservasi wajib diisi.',
+        'kode_reservasi.size' => 'Kode reservasi harus tepat 10 karakter.',
+        'kode_reservasi.regex' => 'Kode reservasi harus berupa 10 karakter alfanumerik.',
+        'nama_peminjam.required' => 'Nama peminjam wajib diisi.',
+        'nama_peminjam.min' => 'Nama peminjam minimal 3 karakter.',
+        'nama_peminjam.max' => 'Nama peminjam maksimal 100 karakter.',
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'email.max' => 'Email maksimal 100 karakter.',
+        'durasi_jam.required' => 'Durasi wajib diisi.',
+        'durasi_jam.integer' => 'Durasi harus berupa angka bulat.',
+        'durasi_jam.between' => 'Durasi harus di antara 1 sampai 8 jam.',
+        'ruang_id.required' => 'Ruang kampus wajib dipilih.',
+        'ruang_id.integer' => 'Ruang kampus yang dipilih tidak valid.',
+    ]);
+
+    try {
+        $pdo = DB::connection()->getPdo();
+
+        $cekRuang = $pdo->prepare('SELECT COUNT(*) FROM ruang WHERE id = :ruang_id');
+        $cekRuang->execute(['ruang_id' => $data['ruang_id']]);
+        if ((int) $cekRuang->fetchColumn() === 0) {
+            return back()->withInput()->with('gagal', 'Ruang kampus yang dipilih tidak tersedia.');
+        }
+
+        $cekKonflik = $pdo->prepare(
+            'SELECT COUNT(*) FROM reservasi_ruang
+             WHERE (kode_reservasi = :kode_reservasi OR email = :email)
+               AND id <> :id'
+        );
+        $cekKonflik->execute([
+            'kode_reservasi' => $data['kode_reservasi'],
+            'email' => $data['email'],
+            'id' => $id,
+        ]);
+
+        if ((int) $cekKonflik->fetchColumn() > 0) {
+            return back()->withInput()->with(
+                'gagal',
+                'Kode reservasi atau email sudah digunakan reservasi lain.'
+            );
+        }
+
+        $ubah = $pdo->prepare(
+            'UPDATE reservasi_ruang
+             SET kode_reservasi = :kode_reservasi,
+                 nama_peminjam = :nama_peminjam,
+                 email = :email,
+                 durasi_jam = :durasi_jam,
+                 ruang_id = :ruang_id
+             WHERE id = :id'
+        );
+        $ubah->execute([
+            'kode_reservasi' => $data['kode_reservasi'],
+            'nama_peminjam' => $data['nama_peminjam'],
+            'email' => $data['email'],
+            'durasi_jam' => (int) $data['durasi_jam'],
+            'ruang_id' => (int) $data['ruang_id'],
+            'id' => $id,
+        ]);
+
+        return redirect()->route('reservasi.index')->with(
+            'berhasil',
+            'Data reservasi berhasil diperbarui.'
+        );
+    } catch (Throwable $error) {
+        report($error);
+
+        return back()->withInput()->with(
+            'gagal',
+            'Data gagal diperbarui. Periksa koneksi dan data.'
+        );
+    }
+})->name('reservasi.update');
+
+Route::delete('/reservasi/{id}', function (int $id) {
+    try {
+        $pdo = DB::connection()->getPdo();
+        $hapus = $pdo->prepare('DELETE FROM reservasi_ruang WHERE id = :id');
+        $hapus->execute(['id' => $id]);
+
+        if ($hapus->rowCount() === 0) {
+            return redirect()->route('reservasi.index')->with(
+                'gagal',
+                'Data reservasi tidak ditemukan.'
+            );
+        }
+
+        return redirect()->route('reservasi.index')->with(
+            'berhasil',
+            'Data reservasi berhasil dihapus.'
+        );
+    } catch (Throwable $error) {
+        report($error);
+
+        return redirect()->route('reservasi.index')->with(
+            'gagal',
+            'Data gagal dihapus. Periksa relasi atau koneksi.'
+        );
+    }
+})->name('reservasi.destroy');
 
 require __DIR__.'/settings.php';
